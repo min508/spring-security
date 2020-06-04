@@ -1,0 +1,20 @@
+server:
+  port: 80
+
+spring:
+  thymeleaf:
+    # 关闭 thymeleaf 缓存
+    cache: false
+
+mengxuegu:
+  security:
+    authentication:
+      loginPage: /login/page              # 响应认证（登录页面）页面的URL
+      loginProcessingUrl: /login/form     # 登录表单提交 处理的URL
+      usernameParameter: name             # 登录表单提交的用户名的属性名
+      passwordParameter: pwd              # 登录表单提交的密码的属性名
+      staticPaths:                        # 静态资源
+        - /dist/**
+        - /modules/**
+        - /plugins/**
+      loginType: REDIRECT                 # 认证之后 响应的类型：JSON/REDIRECT

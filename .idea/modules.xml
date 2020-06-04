@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-base/mengxuegu-security-base.iml" filepath="$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-base/mengxuegu-security-base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-core/mengxuegu-security-core.iml" filepath="$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-core/mengxuegu-security-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-parent.iml" filepath="$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-web/mengxuegu-security-web.iml" filepath="$PROJECT_DIR$/mengxuegu-security-parent/mengxuegu-security-web/mengxuegu-security-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/spring-security.iml" filepath="$PROJECT_DIR$/.idea/spring-security.iml" />
+    </modules>
+  </component>
+</project>
