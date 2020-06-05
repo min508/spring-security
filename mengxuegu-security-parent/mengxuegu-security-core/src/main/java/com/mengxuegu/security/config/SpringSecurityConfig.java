@@ -1,6 +1,9 @@
 package com.mengxuegu.security.config;
 
 import com.mengxuegu.security.authentication.code.ImageCodeValidateFilter;
+import com.mengxuegu.security.mobile.MobileAuthenticationConfig;
+import com.mengxuegu.security.mobile.MobileAuthenticationFilter;
+import com.mengxuegu.security.mobile.MobileValidateFilter;
 import com.mengxuegu.security.properties.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +20,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 /**
  * TODO
@@ -48,10 +53,38 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private ImageCodeValidateFilter imageCodeValidateFilter;
 
+    /**
+     * 校验手机验证码
+     */
+    @Resource
+    private MobileValidateFilter mobileValidateFilter;
+
+    /**
+     * 校验手机号是否存在，就是手机号认证
+     */
+    @Resource
+    private MobileAuthenticationConfig mobileAuthenticationConfig;
+
+    @Resource
+    private DataSource dataSource;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         // 明文 + 随机盐值 -> 加密存储
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * remember_me 功能
+     * @return
+     */
+    @Bean
+    public JdbcTokenRepositoryImpl jdbcTokenRepository(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        // 是否启动项目时自动创建表，true 自动创建
+        // jdbcTokenRepository.setCreateTableOnStartup(true);
+        return jdbcTokenRepository;
     }
 
     /**
@@ -80,7 +113,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //http.httpBasic() // 采用 httpBasic认证方式
-        http.addFilterBefore(imageCodeValidateFilter, UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(mobileValidateFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(imageCodeValidateFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin() // 表单登录方式
                 .loginPage(securityProperties.getAuthentication().getLoginPage())
                 .loginProcessingUrl(securityProperties.getAuthentication().getLoginProcessingUrl()) // 登录表单提交处理url，默认是 /login
@@ -91,9 +125,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests() // 认证请求
                 .antMatchers(securityProperties.getAuthentication().getLoginPage(),
-                        "/code/image").permitAll()  // 放行 login/page 不需要认证和访问
+                        "/code/image","/mobile/page","/code/mobile").permitAll()  // 放行 login/page 不需要认证和访问
                 .anyRequest().authenticated() // 所有访问该应用的 http 请求都要通过身份认证才可以访问
+                .and()
+                .rememberMe() // 记住我功能配置
+                .tokenRepository(jdbcTokenRepository()) // 保存登录信息
+                .tokenValiditySeconds(60*60*24*7) //记住我有效时长
         ;
+        // 将手机认证添加到过滤链上
+        http.apply(mobileAuthenticationConfig);
     }
 
     /**
