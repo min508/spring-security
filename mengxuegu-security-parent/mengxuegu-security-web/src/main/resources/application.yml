@@ -7,8 +7,9 @@ spring:
     cache: false
   datasource:
     username: root
-    password: root
-    url: jdbc:mysql://192.168.23.129:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
+    password: 123456
+    #url: jdbc:mysql://192.168.23.129:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://127.0.0.1:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mengxuegu:
@@ -23,3 +24,7 @@ mengxuegu:
         - /modules/**
         - /plugins/**
       loginType: REDIRECT                 # 认证之后 响应的类型：JSON/REDIRECT
+      imageCodeUrl: /code/image # 获取图形验证码地址
+      mobileCodeUrl: /code/mobile # 获取手机验证码地址
+      mobilePage: /mobile/page # 前往手机登录页面
+      tokenValiditySeconds: 604800 #记住我功能有效时常

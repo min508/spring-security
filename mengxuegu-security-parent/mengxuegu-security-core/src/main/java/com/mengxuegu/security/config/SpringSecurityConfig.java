@@ -83,7 +83,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
         jdbcTokenRepository.setDataSource(dataSource);
         // 是否启动项目时自动创建表，true 自动创建
-        // jdbcTokenRepository.setCreateTableOnStartup(true);
+        //jdbcTokenRepository.setCreateTableOnStartup(true);
         return jdbcTokenRepository;
     }
 
@@ -125,12 +125,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests() // 认证请求
                 .antMatchers(securityProperties.getAuthentication().getLoginPage(),
-                        "/code/image","/mobile/page","/code/mobile").permitAll()  // 放行 login/page 不需要认证和访问
+                        /*"/code/image","/mobile/page","/code/mobile"*/
+                        securityProperties.getAuthentication().getImageCodeUrl(),
+                        securityProperties.getAuthentication().getMobilePage(),
+                        securityProperties.getAuthentication().getMobileCodeUrl()
+                ).permitAll()  // 放行 login/page 不需要认证和访问
                 .anyRequest().authenticated() // 所有访问该应用的 http 请求都要通过身份认证才可以访问
                 .and()
                 .rememberMe() // 记住我功能配置
                 .tokenRepository(jdbcTokenRepository()) // 保存登录信息
-                .tokenValiditySeconds(60*60*24*7) //记住我有效时长
+                .tokenValiditySeconds(securityProperties.getAuthentication().getTokenValiditySeconds()) //记住我有效时长
         ;
         // 将手机认证添加到过滤链上
         http.apply(mobileAuthenticationConfig);
@@ -143,6 +147,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/dist/**","/modules/**","/plugins/**");
+        web.ignoring().antMatchers(securityProperties.getAuthentication().getStaticPaths());
     }
 }

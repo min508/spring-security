@@ -33,13 +33,15 @@ public class MobileAuthenticationFilter extends AbstractAuthenticationProcessing
             throw new AuthenticationServiceException(
                     "Authentication method not supported: " + request.getMethod());
         }
+        // 从 HttpServletRequest 中获取 mobile 的参数
         String mobile = obtainMobile(request);
         if (mobile == null) {
             mobile = "";
         }
         mobile = mobile.trim();
+        // 生成一个 手机号 和一个 未认证的 token
         MobileAuthenticationToken authRequest = new MobileAuthenticationToken(mobile);
-        // Allow subclasses to set the "details" property
+        // 把 sessionID 和 IP 赋值到 MobileAuthenticationToken 中的 detail中
         setDetails(request, authRequest);
         return this.getAuthenticationManager().authenticate(authRequest);
     }
