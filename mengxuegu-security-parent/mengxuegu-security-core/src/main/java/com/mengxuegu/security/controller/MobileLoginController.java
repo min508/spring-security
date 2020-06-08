@@ -1,7 +1,7 @@
 package com.mengxuegu.security.controller;
 
 import com.mengxuegu.base.result.MengxueguResult;
-import com.mengxuegu.security.mobile.SmsSend;
+import com.mengxuegu.security.authentication.mobile.SmsSend;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

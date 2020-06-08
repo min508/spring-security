@@ -47,7 +47,7 @@
         </dependency>
 
 
-        <!--采用redis来管理session
+        <!--采用redis来管理session -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -56,7 +56,7 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
-        -->
+
 
         <!--解决找不到 javax.annotation.meta.When.MAYBE
         <dependency>

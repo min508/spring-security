@@ -1,4 +1,4 @@
-package com.mengxuegu.security.mobile;
+package com.mengxuegu.security.authentication.mobile;
 
 import lombok.extern.slf4j.Slf4j;
 

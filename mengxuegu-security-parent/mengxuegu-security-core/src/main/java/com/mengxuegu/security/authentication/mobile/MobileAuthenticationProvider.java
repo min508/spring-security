@@ -1,4 +1,4 @@
-package com.mengxuegu.security.mobile;
+package com.mengxuegu.security.authentication.mobile;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;

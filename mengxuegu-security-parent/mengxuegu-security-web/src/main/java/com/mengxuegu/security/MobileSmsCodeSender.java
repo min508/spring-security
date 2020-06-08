@@ -1,8 +1,7 @@
 package com.mengxuegu.security;
 
-import com.mengxuegu.security.mobile.SmsSend;
+import com.mengxuegu.security.authentication.mobile.SmsSend;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 /**
  * TODO

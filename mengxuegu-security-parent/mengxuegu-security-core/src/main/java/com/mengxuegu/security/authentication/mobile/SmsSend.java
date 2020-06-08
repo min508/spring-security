@@ -1,4 +1,4 @@
-package com.mengxuegu.security.mobile;
+package com.mengxuegu.security.authentication.mobile;
 
 /**
  * 短信发送统一接口

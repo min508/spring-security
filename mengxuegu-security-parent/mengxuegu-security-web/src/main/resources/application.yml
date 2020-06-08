@@ -1,16 +1,28 @@
 server:
   port: 80
-
+  servlet:
+    session:
+      timeout: 10m # session会话超时时间，默认情况下是 30 分钟（m），不能小于1分钟
+      cookie:
+        name: JSESSIONID # 制定浏览器Cookie中关于 SessionID 保存的那个名称
 spring:
   thymeleaf:
     # 关闭 thymeleaf 缓存
     cache: false
   datasource:
     username: root
-    password: 123456
-    #url: jdbc:mysql://192.168.23.129:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
-    url: jdbc:mysql://127.0.0.1:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
+    password: root
+    url: jdbc:mysql://192.168.23.129:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
+    #url: jdbc:mysql://127.0.0.1:3306/study-security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
     driver-class-name: com.mysql.cj.jdbc.Driver
+  session:
+    store-type: none # session 存储方式采用 redis
+  redis:
+    database: 1
+    host: 192.168.23.129
+    port: 6379
+    password:      # 密码（默认为空）
+    timeout: 6000ms  # 连接超时时长（毫秒）
 
 mengxuegu:
   security:

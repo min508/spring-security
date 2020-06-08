@@ -1,4 +1,4 @@
-package com.mengxuegu.security.mobile;
+package com.mengxuegu.security.authentication.mobile;
 
 import com.mengxuegu.security.authentication.CustomAuthenticationFailureHandler;
 import com.mengxuegu.security.authentication.exception.ValidateCodeException;

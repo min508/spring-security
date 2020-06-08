@@ -1,14 +1,12 @@
 package com.mengxuegu.security.config;
 
 import com.mengxuegu.security.authentication.code.ImageCodeValidateFilter;
-import com.mengxuegu.security.mobile.MobileAuthenticationConfig;
-import com.mengxuegu.security.mobile.MobileAuthenticationFilter;
-import com.mengxuegu.security.mobile.MobileValidateFilter;
+import com.mengxuegu.security.authentication.mobile.MobileAuthenticationConfig;
+import com.mengxuegu.security.authentication.mobile.MobileValidateFilter;
 import com.mengxuegu.security.properties.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -21,6 +19,9 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredEvent;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -68,6 +69,18 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private DataSource dataSource;
 
+    /**
+     * session 失效后的处理类
+     */
+    @Resource
+    private InvalidSessionStrategy invalidSessionStrategy;
+
+    /**
+     * 当同个用户 session 数量超过指定值之后，会调用这个实现类
+     */
+    @Resource
+    private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         // 明文 + 随机盐值 -> 加密存储
@@ -75,7 +88,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * remember_me 功能
+     * remember_me 记住我功能
      * @return
      */
     @Bean
@@ -135,6 +148,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .rememberMe() // 记住我功能配置
                 .tokenRepository(jdbcTokenRepository()) // 保存登录信息
                 .tokenValiditySeconds(securityProperties.getAuthentication().getTokenValiditySeconds()) //记住我有效时长
+                .and()
+                .sessionManagement() // session进行管理
+                .invalidSessionStrategy(invalidSessionStrategy) // 当 session 失效后的处理类
+                .maximumSessions(1) // 每个用户在系统中最多可以有多少个 session
+                .expiredSessionStrategy(sessionInformationExpiredStrategy) // 超过最大数执行这个实现类
+                .maxSessionsPreventsLogin(true) // 当一个用户达到了最大 session 数，则不允许后面再登录
         ;
         // 将手机认证添加到过滤链上
         http.apply(mobileAuthenticationConfig);

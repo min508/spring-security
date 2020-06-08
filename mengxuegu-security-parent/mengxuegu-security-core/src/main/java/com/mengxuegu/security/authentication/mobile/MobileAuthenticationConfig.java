@@ -1,4 +1,4 @@
-package com.mengxuegu.security.mobile;
+package com.mengxuegu.security.authentication.mobile;
 
 import com.mengxuegu.security.authentication.CustomAuthenticationFailureHandler;
 import com.mengxuegu.security.authentication.CustomAuthenticationSuccessHandler;
@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -40,6 +41,9 @@ public class MobileAuthenticationConfig
 
         // 指定记住我功能
         mobileAuthenticationFilter.setRememberMeServices(http.getSharedObject(RememberMeServices.class));
+
+        // 关于 session 重复登录管理
+        mobileAuthenticationFilter.setSessionAuthenticationStrategy(http.getSharedObject(SessionAuthenticationStrategy.class));
 
         // 传入 失败与成功处理器
         mobileAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
