@@ -3,6 +3,7 @@ package com.mengxuegu.security.config;
 import com.mengxuegu.security.authentication.code.ImageCodeValidateFilter;
 import com.mengxuegu.security.authentication.mobile.MobileAuthenticationConfig;
 import com.mengxuegu.security.authentication.mobile.MobileValidateFilter;
+import com.mengxuegu.security.authentication.session.CustomLogoutHandler;
 import com.mengxuegu.security.properties.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -80,6 +83,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Resource
     private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
+
+    /**
+     * 退出之后，将对于的 session 从缓存中清除 SessionRegistryImpl -> ConcurrentMap<Object, Set<String>> principals
+     */
+    @Resource
+    private CustomLogoutHandler customLogoutHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -153,10 +162,25 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .invalidSessionStrategy(invalidSessionStrategy) // 当 session 失效后的处理类
                 .maximumSessions(1) // 每个用户在系统中最多可以有多少个 session
                 .expiredSessionStrategy(sessionInformationExpiredStrategy) // 超过最大数执行这个实现类
-                .maxSessionsPreventsLogin(true) // 当一个用户达到了最大 session 数，则不允许后面再登录
+                //.maxSessionsPreventsLogin(true) // 当一个用户达到了最大 session 数，则不允许后面再登录
+                .sessionRegistry(sessionRegistry())
+                .and().and().logout().addLogoutHandler(customLogoutHandler) //退出清除缓存
+                .logoutUrl("/user/logout") // 退出请求路径
+                .logoutSuccessUrl("/login/page") // 退出成功后跳转地址
+                .deleteCookies("JSESSIONID") // 退出后删除什么cookie值
         ;
+        http.csrf().disable();// 关闭跨站请求伪造
         // 将手机认证添加到过滤链上
         http.apply(mobileAuthenticationConfig);
+    }
+
+    /**
+     * 为了解决退出重新登录的问题
+     * @return
+     */
+    @Bean
+    public SessionRegistry sessionRegistry(){
+        return new SessionRegistryImpl();
     }
 
     /**

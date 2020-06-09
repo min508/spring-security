@@ -7,8 +7,11 @@ import com.mengxuegu.security.authentication.session.CustomSessionInformationExp
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+
+import javax.annotation.Resource;
 
 /**
  * 主要为容器中添加 Bean 实例
@@ -17,6 +20,9 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  */
 @Configuration
 public class SecurityConfigBean {
+
+    @Resource
+    private SessionRegistry sessionRegistry;
 
     /**
      * session 超过最大数执行这个实现类
@@ -35,7 +41,7 @@ public class SecurityConfigBean {
     @Bean
     @ConditionalOnMissingBean(InvalidSessionStrategy.class)
     public InvalidSessionStrategy invalidSessionStrategy(){
-        return new CustomInvalidSessionStrategy();
+        return new CustomInvalidSessionStrategy(sessionRegistry);
     }
 
     /**
