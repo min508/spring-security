@@ -37,6 +37,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 3、封装用户信息和权限信息
         return new User(username, password,
-                AuthorityUtils.commaSeparatedStringToAuthorityList("ADMIN"));
+                AuthorityUtils.commaSeparatedStringToAuthorityList("sys:user,sys:role,ROLE_ADMIN"));
     }
 }

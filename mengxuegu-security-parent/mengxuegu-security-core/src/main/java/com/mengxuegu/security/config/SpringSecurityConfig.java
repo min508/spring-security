@@ -4,11 +4,15 @@ import com.mengxuegu.security.authentication.code.ImageCodeValidateFilter;
 import com.mengxuegu.security.authentication.mobile.MobileAuthenticationConfig;
 import com.mengxuegu.security.authentication.mobile.MobileValidateFilter;
 import com.mengxuegu.security.authentication.session.CustomLogoutHandler;
+import com.mengxuegu.security.authorize.AuthorizeConfigureManager;
 import com.mengxuegu.security.properties.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,6 +41,7 @@ import javax.sql.DataSource;
 @Slf4j
 @Configuration
 @EnableWebSecurity //开启 Spring Security 过滤链 filter
+@EnableGlobalMethodSecurity(prePostEnabled = true) // 开启注解方法级别的权限控制
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
@@ -83,6 +88,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Resource
     private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
+
+    @Resource
+    private AuthorizeConfigureManager authorizeConfigureManager;
 
     /**
      * 退出之后，将对于的 session 从缓存中清除 SessionRegistryImpl -> ConcurrentMap<Object, Set<String>> principals
@@ -144,15 +152,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter(securityProperties.getAuthentication().getPasswordParameter())  // 默认的是 password
                 .successHandler(customAuthenticationSuccessHandler)
                 .failureHandler(customAuthenticationFailureHandler)
-                .and()
-                .authorizeRequests() // 认证请求
-                .antMatchers(securityProperties.getAuthentication().getLoginPage(),
-                        /*"/code/image","/mobile/page","/code/mobile"*/
-                        securityProperties.getAuthentication().getImageCodeUrl(),
-                        securityProperties.getAuthentication().getMobilePage(),
-                        securityProperties.getAuthentication().getMobileCodeUrl()
-                ).permitAll()  // 放行 login/page 不需要认证和访问
-                .anyRequest().authenticated() // 所有访问该应用的 http 请求都要通过身份认证才可以访问
+//                .and()
+//                .authorizeRequests() // 认证请求
+//                .antMatchers(securityProperties.getAuthentication().getLoginPage(),
+//                        /*"/code/image","/mobile/page","/code/mobile"*/
+//                        securityProperties.getAuthentication().getImageCodeUrl(),
+//                        securityProperties.getAuthentication().getMobilePage(),
+//                        securityProperties.getAuthentication().getMobileCodeUrl()
+//                ).permitAll()  // 放行 login/page 不需要认证和访问
+//                // 有 sys:user 权限的可以访问任意请求方式的 /role
+//                .antMatchers("/user").hasAuthority("sys:user")
+//                // 有 sys:role 权限的可以访问 get 方式的 /role
+//                .antMatchers(HttpMethod.GET, "/role").hasAuthority("sys:role")
+//                // ADMIN 注意角色会在前面加上前缀 ROLE_，也就是完整的是 ROLE_ADMIN，ROLE_ROOT
+//                .antMatchers(HttpMethod.GET, "permission").access("hasAuthority('sys:permission') or hasAnyRole('ADMIN','ROOT')")
+//                .anyRequest().authenticated() // 所有访问该应用的 http 请求都要通过身份认证才可以访问
                 .and()
                 .rememberMe() // 记住我功能配置
                 .tokenRepository(jdbcTokenRepository()) // 保存登录信息
@@ -172,6 +186,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();// 关闭跨站请求伪造
         // 将手机认证添加到过滤链上
         http.apply(mobileAuthenticationConfig);
+
+        // 将所有的授权配置统一管理起来
+        authorizeConfigureManager.configure(http.authorizeRequests());
     }
 
     /**
